@@ -1,6 +1,6 @@
-# Cordia App Template
+# X game
 
-Cordia App Template is a static browser-only web application template ready for static hosting.
+X game is a static browser chicken runner. The player starts the run, jumps over obstacles, earns points, and tries to beat the best score stored in the browser.
 
 Creator: cordia.molten.bot
 Creator URL: https://cordia.molten.bot
@@ -12,4 +12,4 @@ Primary files:
 - /global.css
 - /app.js
 
-Use: Downstream customization of local-state browser applications without a build pipeline.
+Use: Play the chicken runner in a browser with keyboard, pointer, or on-screen controls.
