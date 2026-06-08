@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "generatedBy": "cordia",
+  "updatedAt": "2026-06-08T00:14:47.659Z",
+  "project": {
+    "id": "x-game",
+    "handle": "x-game",
+    "title": "X game",
+    "summary": "I want a game where chickens will jump on obstacles and get points and run forward",
+    "url": "https://cordia.molten.bot/project/x-game"
+  },
+  "repo": {
+    "owner": "Molten-Bot",
+    "name": "cordia-x-game",
+    "fullName": "Molten-Bot/cordia-x-game"
+  }
+}
