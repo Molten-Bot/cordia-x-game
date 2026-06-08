@@ -3,66 +3,67 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
-  addItem,
-  clearDoneItems,
-  createDefaultState,
-  parseStoredState,
-  removeItem,
-  updateItem,
+  createDefaultGameState,
+  defaultConfig,
+  hasCollision,
+  jump,
+  parseBestScore,
+  startGame,
+  stepGame,
 } from "../public/app.js";
 
-test("createDefaultState uses supplied id factory", () => {
-  let nextId = 1;
-  const state = createDefaultState(() => `item-${nextId++}`);
+test("createDefaultGameState starts X game ready with best score", () => {
+  const state = createDefaultGameState(12);
 
-  assert.deepEqual(
-    state.items.map((item) => item.id),
-    ["item-1", "item-2", "item-3"],
-  );
+  assert.equal(state.status, "ready");
+  assert.equal(state.bestScore, 12);
+  assert.equal(state.score, 0);
+  assert.deepEqual(state.obstacles, []);
 });
 
-test("parseStoredState merges valid stored values with defaults", () => {
-  const defaultState = createDefaultState(() => "default-id");
-  const stored = JSON.stringify({
-    appName: "Typed Cordia",
-    theme: "dark",
-    items: [{ id: "stored-id", text: "Stored item", done: true }],
-  });
-
-  assert.deepEqual(parseStoredState(stored, defaultState), {
-    appName: "Typed Cordia",
-    theme: "dark",
-    items: [{ id: "stored-id", text: "Stored item", done: true }],
-  });
+test("parseBestScore accepts positive integers only", () => {
+  assert.equal(parseBestScore("42"), 42);
+  assert.equal(parseBestScore("-4"), 0);
+  assert.equal(parseBestScore("nope"), 0);
+  assert.equal(parseBestScore(null), 0);
 });
 
-test("parseStoredState falls back when stored JSON is invalid", () => {
-  const defaultState = createDefaultState(() => "default-id");
+test("jump starts game and moves chicken upward", () => {
+  const ready = createDefaultGameState();
+  const jumping = jump(ready);
+  const stepped = stepGame(jumping, 16);
 
-  assert.equal(parseStoredState("{", defaultState), defaultState);
+  assert.equal(jumping.status, "running");
+  assert.equal(jumping.velocityY, defaultConfig.jumpVelocity);
+  assert.ok(stepped.chickenY > 0);
 });
 
-test("item reducers add, update, remove, and clear items immutably", () => {
+test("stepGame spawns obstacles and scores passed obstacles", () => {
   const state = {
-    appName: "Cordia",
-    theme: "system",
-    items: [
-      { id: "one", text: "One", done: false },
-      { id: "two", text: "Two", done: true },
-    ],
+    ...startGame(createDefaultGameState()),
+    obstacles: [{ id: 1, x: 130, width: 20, height: 30, scored: false }],
+    nextObstacleId: 2,
+    chickenY: 120,
   };
 
-  const added = addItem(state, "Three", () => "three");
-  const updated = updateItem(added, "one", { done: true });
-  const removed = removeItem(updated, "two");
-  const cleared = clearDoneItems(removed);
+  const stepped = stepGame(state, 100);
 
-  assert.deepEqual(added.items[0], { id: "three", text: "Three", done: false });
-  assert.equal(state.items[0].done, false);
-  assert.deepEqual(
-    cleared.items,
-    [{ id: "three", text: "Three", done: false }],
-  );
+  assert.ok(stepped.score >= 10);
+  assert.equal(stepped.obstacles[0]?.scored, true);
+});
+
+test("collision ends game and stores best score", () => {
+  const state = {
+    ...startGame(createDefaultGameState(3)),
+    score: 9,
+    obstacles: [{ id: 1, x: 170, width: 42, height: 70, scored: false }],
+  };
+
+  assert.equal(hasCollision(state), true);
+  const crashed = stepGame(state, 16);
+
+  assert.equal(crashed.status, "gameover");
+  assert.equal(crashed.bestScore, 9);
 });
 
 test("served files do not reference disallowed providers or tooling", async () => {

@@ -7,7 +7,7 @@ Platform URL: https://molten.bot
 
 /* SITE */
 
-Name: Cordia App Template
-Description: Static browser-only web application template ready for static hosting.
+Name: X game
+Description: Browser chicken runner where the player jumps obstacles, scores points, and keeps moving forward.
 Language: English
 Standards: HTML, CSS, JavaScript
